@@ -5,6 +5,7 @@ import { catchError, Observable, of } from 'rxjs';
 import { ErrorDialogComponent } from '../../shared/component/error-dialog/error-dialog.component';
 import { Course } from '../model/course';
 import { CoursesService } from '../services/courses.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-courses',
@@ -14,12 +15,17 @@ import { CoursesService } from '../services/courses.service';
 export class CoursesComponent implements OnInit {
   courses$: Observable<Course[]>;
   // courses: Course[] = []; // if courses was not observables
-  displayedColumns: string[] = ['name', 'category'];
+  displayedColumns: string[] = ['name', 'category', 'actions'];
 
-  constructor(private courseService: CoursesService, public dialog: MatDialog) {
+  constructor(
+    private courseService: CoursesService,
+    public dialog: MatDialog,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.courses$ = this.courseService.list().pipe(
-      catchError((error) => {
-        this.onError('Error while loading courses');
+      catchError((error: any) => {
+        this.onError(`Error while loading courses ${error}`);
         return of([]);
       })
     );
@@ -33,5 +39,10 @@ export class CoursesComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    /* TODO document why this method 'ngOnInit' is empty */
+  }
+  onAdd() {
+    this.router.navigate(['new'], { relativeTo: this.route });
+  }
 }
