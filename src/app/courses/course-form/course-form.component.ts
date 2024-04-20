@@ -1,6 +1,12 @@
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  NonNullableFormBuilder,
+  UntypedFormBuilder,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Course } from '../model/course';
@@ -11,30 +17,40 @@ import { CoursesService } from '../services/courses.service';
   templateUrl: './course-form.component.html',
   styleUrl: './course-form.component.scss',
 })
-export class CourseFormComponent {
-  form: FormGroup;
+export class CourseFormComponent implements OnInit {
+  form = this.formBuilder.group({
+    name: [''],
+    category: [''],
+  });
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: NonNullableFormBuilder,
     private service: CoursesService,
-    private _snackBar: MatSnackBar
-  ) {
-    this.form = this.formBuilder.group({
-      name: [null],
-      category: [null],
-    });
-  }
+    private _snackBar: MatSnackBar,
+    private location: Location
+  ) {}
+  ngOnInit(): void {}
+
   onSubmit() {
     this.service.save(this.form.value).subscribe(
-      (result: Course) => console.log(result),
+      (result: Course) => this.onSucces(),
       (error: HttpErrorResponse) => this.onError()
     );
   }
 
-  onCancel() {}
+  onCancel() {
+    this.location.back();
+  }
+
+  private onSucces() {
+    this._snackBar.open(`Course sucessfuly saved`, ' ', {
+      duration: 4000,
+    });
+    this.onCancel();
+  }
 
   private onError() {
     this._snackBar.open(`Error while saving the course`, ' ', {
-      duration: 3000,
+      duration: 4000,
     });
   }
 }
